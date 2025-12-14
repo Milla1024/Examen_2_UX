@@ -34,7 +34,7 @@ app.post("/createPost", async (req, res) => {
       updatedAt: new Date()
     });
 
-    res.status(201).json({ mensaje: "Post creado exitosamente en mondongo", titulo: title, contenido: content, autor: authorId});
+    res.status(201).json({ mensaje: "Post creado exitosamente en mondongo", postId: result.insertedId});
   } catch (error) {
     res.status(500).json({ mensaje: "Error al crear el post", error: error.message });
   }
@@ -47,4 +47,18 @@ app.post("/createPost", async (req, res) => {
 
 
 // post de eliminar
+app.delete("/deletePost/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = getDB();
+    const result = await db.collection("posts").deleteOne({ _id: new ObjectId(id) });
 
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ mensaje: "Post no encontrado" });
+    }
+
+    res.json({ mensaje: "Post eliminado exitosamente" });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al eliminar el post" });
+  }
+});
