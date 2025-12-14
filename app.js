@@ -41,10 +41,37 @@ app.post("/createPost", async (req, res) => {
 });
 
 // post de listar
-
+app.get("/listPost", async (req, res) => {
+  try {
+    const db = getDB();
+    const posts = await db.collection("posts").find().toArray();
+    res.json({ posts });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al obtener posts" });
+  }
+});
 
 // post de editar
+app.put("/editPost/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, authorId } = req.body;
 
+    const db = getDB();
+    const result = await db.collection("posts").updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { title, content, authorId, updatedAt: new Date() } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ mensaje: "Post no encontrado" });
+    }
+
+    res.json({ mensaje: "Post actualizado exitosamente" });
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error al actualizar el post" });
+  }
+});
 
 // post de eliminar
 app.delete("/deletePost/:id", async (req, res) => {
